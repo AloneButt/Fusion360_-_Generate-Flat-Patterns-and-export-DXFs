@@ -1,7 +1,12 @@
 # Fusion 360 flat pattern DXF Exporter 🚀
 
-A Python script for Autodesk Fusion 360 that automates the identification of sheet metal components, generates flat patterns, and exports them as DXF files. Perfect for streamlining sheet metal design workflows in assemblies with multiple parts.
-Description 📝
+
+
+## Are you tired of manually generating flat patterns for multimple components and exporting them as DXFs? Thi script will solve that problem for you!
+
+This Fusion 360 script automates the identification of sheet metal components, generates flat patterns, and exports them as DXF files. Perfect for streamlining sheet metal design workflows in assemblies with multiple parts.
+
+## Description 📝
 
 This script iterates through all components in the active Fusion 360 design, detects sheet metal parts, creates flat patterns if they don't exist, and exports them as DXF files to a user-selected folder. It handles nested components, skips non-sheet metal parts, and ensures unique file names to avoid overwrites. Designed to run silently with minimal user interaction beyond selecting the output folder.
 Features ✨
