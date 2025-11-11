@@ -81,6 +81,15 @@ def run(context):
                 # Create DXF export options for flat pattern
                 dxf_options = export_mgr.createDXFFlatPatternExportOptions(filename, flat_pattern)
                 
+                # Exclude center lines and extent lines
+                dxf_options.isCenterLinesExported = False
+                dxf_options.isExtentLinesExported = False
+                
+                # Convert splines to polylines to prevent potential crashes (new addition)
+                dxf_options.isSplineConvertedToPolyline = True
+                # Optional: Set tolerance for spline conversion (in cm)
+                # dxf_options.convertToPolylineTolerance = 0.01
+                
                 # Execute export
                 export_mgr.execute(dxf_options)
                 export_count += 1
