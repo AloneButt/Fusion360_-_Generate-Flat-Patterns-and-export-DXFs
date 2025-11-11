@@ -2,9 +2,12 @@
 
 
 
-**Are you tired of manually generating flat patterns for multimple components and exporting them as DXFs? Thi script will solve that problem for you!**
+**Are you tired of manually generating flat patterns for multimple components and exporting them as DXFs?**
+**This script will solve that problem for you!**
 
-This Fusion 360 script automates the identification of sheet metal components, generates flat patterns, and exports them as DXF files. Perfect for streamlining sheet metal design workflows in assemblies with multiple parts.
+
+
+It automates the identification of sheet metal components, generates flat patterns, and exports them as DXF files. Perfect for streamlining sheet metal design workflows in assemblies with multiple parts.
 
 ## Description 📝
 
