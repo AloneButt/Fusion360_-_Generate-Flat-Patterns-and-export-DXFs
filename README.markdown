@@ -37,8 +37,8 @@ Download the repository .zip, extract it and add it directly via the Scripts and
 
 Open your Fusion 360 design containing sheet metal components.
 In the Scripts and Add-Ins panel, select the script and click Run.
-A folder selection dialog will appear—choose your output directory.
-The script will process all sheet metal parts automatically.
+A window will appear with the selection of your active sheet metal components and a button for the output path.
+The script will process all sheet metal parts that you checked automatically.
 Upon completion, a message box will confirm the number of DXF files exported.
 
 Note: **Ensure your design is in the Design workspace. The script skips non-sheet metal components and handles exceptions without interrupting the process.**
