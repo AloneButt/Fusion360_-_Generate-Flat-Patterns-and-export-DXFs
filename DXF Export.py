@@ -9,6 +9,10 @@ ui = app.userInterface
 selected_components = []
 
 
+def sanitize_id(name):
+    return ''.join(c if c.isalnum() else '_' for c in name)
+
+
 class CommandCreatedHandler(adsk.core.CommandCreatedEventHandler):
     def __init__(self):
         super().__init__()
@@ -38,8 +42,9 @@ class CommandCreatedHandler(adsk.core.CommandCreatedEventHandler):
             groupChildren = group.children
 
             for comp in sheet_metal_comps:
+                sanitized_name = sanitize_id(comp.name)
                 groupChildren.addBoolValueInput(
-                    f'{comp.name}_chk',
+                    f'{sanitized_name}_chk',
                     comp.name,
                     True,
                     '',
@@ -104,7 +109,8 @@ class CommandExecuteHandler(adsk.core.CommandEventHandler):
             # Determine selected components
             selected = []
             for comp in self.comps:
-                chk = inputs.itemById(f'{comp.name}_chk')
+                sanitized_name = sanitize_id(comp.name)
+                chk = inputs.itemById(f'{sanitized_name}_chk')
                 if chk and chk.value:
                     selected.append(comp)
 
