@@ -136,7 +136,21 @@ class CommandExecuteHandler(adsk.core.CommandEventHandler):
                     if flat_pattern is None:
                         continue
 
-                    base_name = sm_comp.name.replace('/', '_').replace('\\', '_')
+                    # Get sheet metal rule name from the component
+                    rule_name = ""
+                    try:
+                        if hasattr(sm_comp, 'activeSheetMetalRule') and sm_comp.activeSheetMetalRule:
+                            rule_name = sm_comp.activeSheetMetalRule.name
+                    except:
+                        pass
+                    
+                    # Build filename with rule name prefix if available
+                    comp_name = sm_comp.name.replace('/', '_').replace('\\', '_')
+                    if rule_name:
+                        base_name = f'{rule_name} {comp_name}'
+                    else:
+                        base_name = comp_name
+                    
                     filename = os.path.join(output_folder, base_name + '.dxf')
                     count = 1
                     while os.path.exists(filename):
