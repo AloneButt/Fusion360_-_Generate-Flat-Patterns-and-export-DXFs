@@ -8,6 +8,33 @@ ui = app.userInterface
 
 selected_components = []
 
+# Path to the last-used output folder (saved next to this script)
+LAST_FOLDER_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'dxf_export_last_folder.txt')
+
+DEFAULT_OUTPUT_FOLDER = r'C:\FusionExports'
+
+
+def load_last_folder():
+    """Return the last-used output folder, or the default if none saved."""
+    try:
+        if os.path.exists(LAST_FOLDER_PATH):
+            with open(LAST_FOLDER_PATH, 'r', encoding='utf-8') as f:
+                folder = f.read().strip()
+                if folder:
+                    return folder
+    except:
+        pass
+    return DEFAULT_OUTPUT_FOLDER
+
+
+def save_last_folder(folder):
+    """Persist the chosen output folder for next run."""
+    try:
+        with open(LAST_FOLDER_PATH, 'w', encoding='utf-8') as f:
+            f.write(folder)
+    except:
+        pass
+
 
 def sanitize_id(name):
     return ''.join(c if c.isalnum() else '_' for c in name)
@@ -37,6 +64,10 @@ class CommandCreatedHandler(adsk.core.CommandCreatedEventHandler):
                 ui.messageBox('No sheet metal components found.')
                 return
 
+            # Select / deselect all buttons
+            inputs.addBoolValueInput('select_all_btn', 'Select all', False, '', False)
+            inputs.addBoolValueInput('deselect_all_btn', 'Deselect all', False, '', False)
+
             # Group inputs for better organization
             group = inputs.addGroupCommandInput('group', 'Select Components')
             groupChildren = group.children
@@ -52,7 +83,7 @@ class CommandCreatedHandler(adsk.core.CommandCreatedEventHandler):
                 )
 
             # Folder selection input
-            folder_input = inputs.addStringValueInput('folder_path', 'Output Folder', r'C:\FusionExports')
+            folder_input = inputs.addStringValueInput('folder_path', 'Output Folder', load_last_folder())
             inputs.addBoolValueInput('browse_btn', 'Browse...', False, '', False)
 
             # Connect to input changed event
@@ -65,8 +96,21 @@ class CommandCreatedHandler(adsk.core.CommandCreatedEventHandler):
             cmd.execute.add(on_execute)
             handlers.append(on_execute)
 
+            # Connect to destroy event so cancel also terminates the script
+            on_destroy = CommandDestroyHandler()
+            cmd.destroy.add(on_destroy)
+            handlers.append(on_destroy)
+
         except:
             ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
+
+
+class CommandDestroyHandler(adsk.core.CommandEventHandler):
+    def notify(self, args):
+        try:
+            adsk.terminate()
+        except:
+            pass
 
 
 class CommandInputChangedHandler(adsk.core.InputChangedEventHandler):
@@ -79,10 +123,24 @@ class CommandInputChangedHandler(adsk.core.InputChangedEventHandler):
             changed_input = args.input
             inputs = args.inputs
 
+            if changed_input.id == 'select_all_btn':
+                for comp in self.comps:
+                    chk = inputs.itemById(f'{sanitize_id(comp.name)}_chk')
+                    if chk:
+                        chk.value = True
+                return
+
+            if changed_input.id == 'deselect_all_btn':
+                for comp in self.comps:
+                    chk = inputs.itemById(f'{sanitize_id(comp.name)}_chk')
+                    if chk:
+                        chk.value = False
+                return
+
             if changed_input.id == 'browse_btn':
                 folderDlg = ui.createFolderDialog()
                 folderDlg.title = 'Select Output Folder'
-                folderDlg.initialDirectory = r'C:\FusionExports'
+                folderDlg.initialDirectory = inputs.itemById('folder_path').value or load_last_folder()
                 if folderDlg.showDialog() == adsk.core.DialogResults.DialogOK:
                     folder_input = inputs.itemById('folder_path')
                     folder_input.value = folderDlg.folder
@@ -168,6 +226,12 @@ class CommandExecuteHandler(adsk.core.CommandEventHandler):
                     pass
 
             ui.messageBox(f'Export completed: {export_count} DXFs saved in\n{output_folder}')
+
+            # Persist this folder as the default for next run
+            save_last_folder(output_folder)
+
+            # Allow the add-in to unload now that the work is done
+            adsk.terminate()
 
         except:
             ui.messageBox('Failed:\n{}'.format(traceback.format_exc()))
